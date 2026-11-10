@@ -53,7 +53,17 @@ export async function GET(req: Request) {
           q.questionEn.toLowerCase().includes(search) ||
           q.questionNe.toLowerCase().includes(search) ||
           q.topicNameEn.toLowerCase().includes(search) ||
-          q.topicNameNe.toLowerCase().includes(search)
+          q.topicNameNe.toLowerCase().includes(search) ||
+          q.explanationEn.toLowerCase().includes(search) ||
+          q.explanationNe.toLowerCase().includes(search) ||
+          q.optionAEn.toLowerCase().includes(search) ||
+          q.optionBEn.toLowerCase().includes(search) ||
+          q.optionCEn.toLowerCase().includes(search) ||
+          q.optionDEn.toLowerCase().includes(search) ||
+          q.optionANe.toLowerCase().includes(search) ||
+          q.optionBNe.toLowerCase().includes(search) ||
+          q.optionCNe.toLowerCase().includes(search) ||
+          q.optionDNe.toLowerCase().includes(search)
       );
     }
 

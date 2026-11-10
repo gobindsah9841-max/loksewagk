@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const dynamic = "force-static";
 
 export default function OfflinePage() {
@@ -29,12 +31,12 @@ export default function OfflinePage() {
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           तपाईं अफलाइन हुनुहुन्छ। इन्टरनेट जोडेर पुनः प्रयास गर्नुहोस्।
         </p>
-        <a
+        <Link
           href="/"
           className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-[#0F294A] px-6 text-sm font-semibold text-white dark:bg-sky-500 dark:text-slate-950"
         >
           Retry / पुनः प्रयास
-        </a>
+        </Link>
       </section>
     </main>
   );

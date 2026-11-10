@@ -29,6 +29,7 @@ import {
   TrendingDown,
   Database,
   Smartphone,
+  FileJson,
 } from "lucide-react";
 import Link from "next/link";
 import type {
@@ -44,6 +45,7 @@ import { MockExamRunner } from "./MockExamRunner";
 import { SyllabusExplorer } from "./SyllabusExplorer";
 import { QuestionBankModal } from "./QuestionBankModal";
 import { ProfileSettingsModal } from "./ProfileSettingsModal";
+import { BackupMigrationModal } from "./BackupMigrationModal";
 import { CurrentAffairsSection } from "./CurrentAffairsSection";
 import { PerformanceAnalyticsView } from "./PerformanceAnalyticsView";
 
@@ -84,6 +86,9 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
 
   // Student Exam Target & Profile Settings Modal
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  // Backup & Cross-Device Migration Modal
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
 
   // Question Bank Manager search
   const [qbSearch, setQbSearch] = useState("");
@@ -439,6 +444,21 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
               <span className="hidden md:inline">Mobile App</span>
             </Link>
 
+            {/* Backup & Migration JSON */}
+            <button
+              type="button"
+              onClick={() => setBackupModalOpen(true)}
+              title={
+                lang === "ne"
+                  ? "ब्याकअप तथा स्थानान्तरण (JSON)"
+                  : "Backup & Cross-Device Migration (JSON)"
+              }
+              className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 sm:px-3 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            >
+              <FileJson className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="hidden lg:inline">{t.backupAndMigration}</span>
+            </button>
+
             {/* Light / Dark Theme Toggle */}
             <button
               type="button"
@@ -518,6 +538,23 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
                 </div>
               </div>
             ))}
+
+            {/* Quick Backup & Migration shortcut */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setBackupModalOpen(true)}
+                className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <span className="flex items-center gap-2 truncate">
+                  <FileJson className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span className="truncate">{t.backupAndMigration}</span>
+                </span>
+                <span className="font-mono-num rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  JSON
+                </span>
+              </button>
+            </div>
           </nav>
         </aside>
 
@@ -576,6 +613,26 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
                     </div>
                   </div>
                 ))}
+
+                {/* Quick Backup & Migration in mobile */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setBackupModalOpen(true);
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    <span className="flex items-center gap-2">
+                      <FileJson className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>{t.backupAndMigration}</span>
+                    </span>
+                    <span className="font-mono-num rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      JSON
+                    </span>
+                  </button>
+                </div>
               </nav>
             </aside>
           </div>
@@ -1504,14 +1561,26 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
           {activeSection === "bookmarked_questions" && (
             <div className="space-y-4">
               <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-[#131C31]">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {t.bookmarkedQuestions} ({bookmarkedQuestions.length})
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {lang === "ne"
-                    ? "तपाईंले बुकमार्क गर्नुभएका प्रश्नहरू र व्यक्तिगत अध्ययन नोटहरू यहाँ सुरक्षित छन्।"
-                    : "Review and practice your bookmarked questions along with your personal study notes."}
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      {t.bookmarkedQuestions} ({bookmarkedQuestions.length})
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {lang === "ne"
+                        ? "तपाईंले बुकमार्क गर्नुभएका प्रश्नहरू र व्यक्तिगत अध्ययन नोटहरू यहाँ सुरक्षित छन्।"
+                        : "Review and practice your bookmarked questions along with your personal study notes."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setBackupModalOpen(true)}
+                    className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+                  >
+                    <FileJson className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    {lang === "ne" ? "ब्याकअप / स्थानान्तरण" : "Backup / Sync"}
+                  </button>
+                </div>
               </div>
 
               {bookmarkedQuestions.length === 0 ? (
@@ -1608,6 +1677,7 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
                 setActiveSection("mock_exam");
               }}
               onDeleteExam={handleDeleteExam}
+              onOpenBackupModal={() => setBackupModalOpen(true)}
             />
           )}
 
@@ -1763,6 +1833,17 @@ export function LoksewaApp({ initialData }: LoksewaAppProps) {
           lang={lang}
           onClose={() => setProfileModalOpen(false)}
           onProfileUpdated={refreshDashboard}
+          onOpenBackupModal={() => setBackupModalOpen(true)}
+        />
+      )}
+
+      {backupModalOpen && (
+        <BackupMigrationModal
+          lang={lang}
+          totalBookmarks={data.stats.bookmarkedCount}
+          totalExams={data.examHistory.length}
+          onClose={() => setBackupModalOpen(false)}
+          onBackupImported={refreshDashboard}
         />
       )}
 

@@ -1,0 +1,8 @@
+{
+  "name": "Loksewa Pro — Nepal PSC & PPSC Preparation",
+  "description": "Comprehensive bilingual examination preparation platform for Federal Loksewa Aayog, 7 Provincial Public Service Commissions (PPSC), and Fifth Level General Administration with mock exams and analytics.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

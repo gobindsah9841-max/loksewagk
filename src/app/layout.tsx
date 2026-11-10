@@ -4,10 +4,14 @@ import { PwaManager } from "@/components/PwaManager";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title:
-    "Loksewa Pro — Complete Nepal Public Service Commission (PSC & PPSC) Exam Preparation",
+  title: "Loksewa Pro — Nepal PSC & PPSC Preparation",
   description:
-    "Comprehensive bilingual (Nepali & English) examination preparation platform for Federal Loksewa Aayog, all 7 Provincial Public Service Commissions (PPSC), and Fifth Level General Administration.",
+    "Comprehensive bilingual examination preparation platform for Federal Loksewa Aayog, 7 Provincial Public Service Commissions (PPSC), and Fifth Level General Administration with mock exams and analytics.",
+  openGraph: {
+    title: "Loksewa Pro — Nepal PSC & PPSC Preparation",
+    description:
+      "Comprehensive bilingual examination preparation platform for Federal Loksewa Aayog, 7 Provincial Public Service Commissions (PPSC), and Fifth Level General Administration with mock exams and analytics.",
+  },
   manifest: "/manifest.webmanifest",
   applicationName: "Loksewa Pro",
   appleWebApp: {

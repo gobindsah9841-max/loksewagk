@@ -57,6 +57,20 @@ export const COMMISSIONS = [
     shortEn: "Sudurpashchim PPSC",
     shortNe: "सुदूरपश्चिम प्रदेश",
   },
+  {
+    id: "TSC",
+    en: "Teacher Service Commission (TSC)",
+    ne: "शिक्षक सेवा आयोग (TSC)",
+    shortEn: "TSC",
+    shortNe: "शिक्षक सेवा",
+  },
+  {
+    id: "Security",
+    en: "Security Agencies (Police / APF)",
+    ne: "सुरक्षा निकाय (प्रहरी तथा सशस्त्र)",
+    shortEn: "Police / APF",
+    shortNe: "सुरक्षा निकाय",
+  },
 ];
 
 export const EXAM_LEVELS = [
@@ -79,6 +93,16 @@ export const EXAM_LEVELS = [
     id: "Technical & Health First Paper",
     en: "Technical / Health / Engineering – First Paper (GK & IQ)",
     ne: "प्राविधिक / स्वास्थ्य / इन्जिनियरिङ – प्रथम पत्र (सामान्य ज्ञान र IQ)",
+  },
+  {
+    id: "TSC First Paper",
+    en: "Teacher Service Commission (TSC) – First Paper (General Examination)",
+    ne: "शिक्षक सेवा आयोग – प्रथम पत्र (सामान्य परीक्षा - मा.वि./नि.मा.वि./प्रा.वि.)",
+  },
+  {
+    id: "Security Forces Examination",
+    en: "Security Forces – Inspector / Sub-Inspector / Cadet",
+    ne: "सुरक्षा निकाय – निरीक्षक / स.प्र.नि. / क्याडेट",
   },
 ];
 
@@ -151,6 +175,16 @@ export const UI_TEXT = {
     next: "Next",
     viewAll: "Open Full View",
     reattemptIncorrect: "Practice Incorrect Questions",
+    backupAndMigration: "Backup & Migration",
+    exportBackup: "Export Backup (JSON)",
+    importBackup: "Import Backup (JSON)",
+    backupDescription:
+      "Export your full exam history and bookmarked questions to a JSON file, or restore them onto another device or browser.",
+    downloadBackup: "Download JSON Backup",
+    selectBackupFile: "Choose JSON File",
+    mergeOption: "Merge with Existing Data (Safe)",
+    replaceOption: "Replace Existing History & Bookmarks",
+    importSuccess: "Backup data imported successfully!",
   },
   ne: {
     brandName: "लोकसेवा प्रो",
@@ -220,5 +254,15 @@ export const UI_TEXT = {
     next: "अर्को",
     viewAll: "पूरा खोल्नुहोस्",
     reattemptIncorrect: "गलत भएका प्रश्न पुनः अभ्यास गर्नुहोस्",
+    backupAndMigration: "ब्याकअप तथा स्थानान्तरण",
+    exportBackup: "JSON ब्याकअप डाउनलोड गर्नुहोस्",
+    importBackup: "JSON ब्याकअप इम्पोर्ट गर्नुहोस्",
+    backupDescription:
+      "परीक्षा इतिहास र बुकमार्क गरिएका प्रश्नहरूलाई JSON फाइलमा सुरक्षित गर्नुहोस् वा अन्य उपकरण/ब्राउजरमा पुनःस्थापना गर्नुहोस्।",
+    downloadBackup: "JSON फाइल डाउनलोड गर्नुहोस्",
+    selectBackupFile: "JSON फाइल छनोट गर्नुहोस्",
+    mergeOption: "हालको तथ्याङ्कमा थप्नुहोस् (मर्ज)",
+    replaceOption: "पुरानो तथ्याङ्क हटाएर नयाँ राख्नुहोस्",
+    importSuccess: "ब्याकअप तथ्याङ्क सफलतापूर्वक इम्पोर्ट गरियो!",
   },
 } as const;

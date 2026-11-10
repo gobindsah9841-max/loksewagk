@@ -11,6 +11,7 @@ import {
   Play,
   BarChart3,
   History,
+  FileJson,
 } from "lucide-react";
 import type {
   DashboardPayload,
@@ -25,6 +26,7 @@ interface PerformanceAnalyticsViewProps {
   onPracticeSubject: (subjectId: number) => void;
   onReviewExam: (exam: ExamHistoryItem) => void;
   onDeleteExam: (examId: number) => void;
+  onOpenBackupModal?: () => void;
 }
 
 export function PerformanceAnalyticsView({
@@ -34,6 +36,7 @@ export function PerformanceAnalyticsView({
   onPracticeSubject,
   onReviewExam,
   onDeleteExam,
+  onOpenBackupModal,
 }: PerformanceAnalyticsViewProps) {
   const t = UI_TEXT[lang];
   const { stats, examHistory } = data;
@@ -224,7 +227,7 @@ export function PerformanceAnalyticsView({
 
       {/* Study History Section */}
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-[#131C31]">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <History className="h-5 w-5 text-[#C81E3D]" />
             <div>
@@ -238,9 +241,21 @@ export function PerformanceAnalyticsView({
               </p>
             </div>
           </div>
-          <span className="font-mono-num rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-            {examHistory.length} {lang === "ne" ? "परीक्षा" : "Sessions"}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono-num rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              {examHistory.length} {lang === "ne" ? "परीक्षा" : "Sessions"}
+            </span>
+            {onOpenBackupModal && (
+              <button
+                type="button"
+                onClick={onOpenBackupModal}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-750"
+              >
+                <FileJson className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                {lang === "ne" ? "ब्याकअप / स्थानान्तरण" : "Backup / Sync"}
+              </button>
+            )}
+          </div>
         </div>
 
         {examHistory.length === 0 ? (

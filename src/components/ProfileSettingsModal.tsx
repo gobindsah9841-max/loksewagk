@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, ShieldCheck } from "lucide-react";
+import { X, ShieldCheck, FileJson } from "lucide-react";
 import type { PublicUser } from "@/lib/auth";
 import { COMMISSIONS, EXAM_LEVELS, UI_TEXT, type Lang } from "@/lib/i18n";
 
@@ -10,6 +10,7 @@ interface ProfileSettingsModalProps {
   lang: Lang;
   onClose: () => void;
   onProfileUpdated: () => void;
+  onOpenBackupModal?: () => void;
 }
 
 export function ProfileSettingsModal({
@@ -17,6 +18,7 @@ export function ProfileSettingsModal({
   lang,
   onClose,
   onProfileUpdated,
+  onOpenBackupModal,
 }: ProfileSettingsModalProps) {
   const t = UI_TEXT[lang];
   const [name, setName] = useState(user.name);
@@ -123,6 +125,34 @@ export function ProfileSettingsModal({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 dark:border-slate-800 dark:bg-slate-900/60">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {t.backupAndMigration}
+                </h4>
+                <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                  {lang === "ne"
+                    ? "परीक्षा इतिहास र बुकमार्क JSON ब्याकअप"
+                    : "Export or restore JSON backup across devices"}
+                </p>
+              </div>
+              {onOpenBackupModal && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenBackupModal();
+                  }}
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  <FileJson className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  {lang === "ne" ? "ब्याकअप / स्थानान्तरण" : "Backup / Sync"}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2">

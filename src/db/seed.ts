@@ -1,6 +1,7 @@
 import { count, eq } from "drizzle-orm";
 import {
   db,
+  ensureSchemaInitialized,
   subjects,
   topics,
   questions,
@@ -17,6 +18,8 @@ import {
   CORE_QUESTION_SEEDS,
   CURRENT_AFFAIRS_SEEDS,
 } from "./seeds/questions-core";
+import { TSC_PYQ_QUESTION_SEEDS } from "./seeds/questions-tsc-pyqs";
+import { QNA_COMPILATION_SEEDS } from "./seeds/questions-qna-compilation";
 import { hashPassword } from "@/lib/auth";
 
 const globalForSeed = globalThis as typeof globalThis & {
@@ -24,78 +27,103 @@ const globalForSeed = globalThis as typeof globalThis & {
 };
 
 async function runSeed(): Promise<void> {
-  const [{ value: subjectCount }] = await db
-    .select({ value: count() })
-    .from(subjects);
+  await ensureSchemaInitialized();
 
-  if (subjectCount > 0) {
-    return;
+  // 1. Ensure Subjects
+  const existingSubjects = await db.select().from(subjects);
+  let allSubjects = existingSubjects;
+  if (existingSubjects.length === 0) {
+    const insertedSubjects = await db
+      .insert(subjects)
+      .values(SUBJECT_SEEDS)
+      .onConflictDoNothing()
+      .returning();
+    allSubjects =
+      insertedSubjects.length > 0
+        ? insertedSubjects
+        : await db.select().from(subjects);
   }
-
-  // 1. Insert Subjects
-  const insertedSubjects = await db
-    .insert(subjects)
-    .values(SUBJECT_SEEDS)
-    .onConflictDoNothing()
-    .returning();
-
-  const allSubjects =
-    insertedSubjects.length > 0
-      ? insertedSubjects
-      : await db.select().from(subjects);
-
   const subjectByCode = new Map(allSubjects.map((s) => [s.code, s.id]));
 
-  // 2. Insert 81 Topics
-  const topicRows = TOPIC_SEEDS.map((t) => ({
-    subjectId: subjectByCode.get(t.subjectCode)!,
-    subCategoryEn: t.subCategoryEn,
-    subCategoryNe: t.subCategoryNe,
-    nameEn: t.nameEn,
-    nameNe: t.nameNe,
-    slug: t.slug,
-    weightageMarks: t.weightageMarks,
-    sortOrder: t.sortOrder,
-  }));
-
-  await db.insert(topics).values(topicRows).onConflictDoNothing();
-  const allTopics = await db.select().from(topics);
+  // 2. Ensure Topics
+  const existingTopics = await db.select().from(topics);
+  let allTopics = existingTopics;
+  if (existingTopics.length === 0) {
+    const topicRows = TOPIC_SEEDS.map((t) => ({
+      subjectId: subjectByCode.get(t.subjectCode)!,
+      subCategoryEn: t.subCategoryEn,
+      subCategoryNe: t.subCategoryNe,
+      nameEn: t.nameEn,
+      nameNe: t.nameNe,
+      slug: t.slug,
+      weightageMarks: t.weightageMarks,
+      sortOrder: t.sortOrder,
+    }));
+    await db.insert(topics).values(topicRows).onConflictDoNothing();
+    allTopics = await db.select().from(topics);
+  }
   const topicBySlug = new Map(allTopics.map((t) => [t.slug, t]));
 
-  // 3. Insert Questions
-  const allQuestionSeeds = [...GK_QUESTION_SEEDS, ...CORE_QUESTION_SEEDS];
-  const questionRows = allQuestionSeeds
-    .map((q) => {
-      const topic = topicBySlug.get(q.topicSlug);
-      if (!topic) return null;
-      return {
-        subjectId: topic.subjectId,
-        topicId: topic.id,
-        questionEn: q.questionEn,
-        questionNe: q.questionNe,
-        optionAEn: q.optionAEn,
-        optionANe: q.optionANe,
-        optionBEn: q.optionBEn,
-        optionBNe: q.optionBNe,
-        optionCEn: q.optionCEn,
-        optionCNe: q.optionCNe,
-        optionDEn: q.optionDEn,
-        optionDNe: q.optionDNe,
-        correctOption: q.correctOption,
-        explanationEn: q.explanationEn,
-        explanationNe: q.explanationNe,
-        difficulty: q.difficulty,
-        commission: q.commission,
-        examLevel: q.examLevel,
-        isPreviousYear: Boolean(q.isPreviousYear),
-        previousYearInfo: q.previousYearInfo ?? null,
-        isImportant: Boolean(q.isImportant),
-        isDailyChallenge: Boolean(q.isDailyChallenge),
-      };
-    })
-    .filter((row): row is NonNullable<typeof row> => row !== null);
+  // 3. Insert Missing Questions
+  const allQuestionSeeds = [
+    ...GK_QUESTION_SEEDS,
+    ...CORE_QUESTION_SEEDS,
+    ...TSC_PYQ_QUESTION_SEEDS,
+    ...QNA_COMPILATION_SEEDS,
+  ];
 
-  await db.insert(questions).values(questionRows);
+  const existingQuestions = await db
+    .select({ questionEn: questions.questionEn })
+    .from(questions);
+  const existingQuestionEnSet = new Set(
+    existingQuestions.map((q) => q.questionEn.trim().toLowerCase())
+  );
+
+  const missingSeeds = allQuestionSeeds.filter(
+    (q) => !existingQuestionEnSet.has(q.questionEn.trim().toLowerCase())
+  );
+
+  if (missingSeeds.length > 0) {
+    const questionRows = missingSeeds
+      .map((q) => {
+        const topic = topicBySlug.get(q.topicSlug);
+        if (!topic) return null;
+        return {
+          subjectId: topic.subjectId,
+          topicId: topic.id,
+          questionEn: q.questionEn,
+          questionNe: q.questionNe,
+          optionAEn: q.optionAEn,
+          optionANe: q.optionANe,
+          optionBEn: q.optionBEn,
+          optionBNe: q.optionBNe,
+          optionCEn: q.optionCEn,
+          optionCNe: q.optionCNe,
+          optionDEn: q.optionDEn,
+          optionDNe: q.optionDNe,
+          correctOption: q.correctOption,
+          explanationEn: q.explanationEn,
+          explanationNe: q.explanationNe,
+          difficulty: q.difficulty,
+          commission: q.commission,
+          examLevel: q.examLevel,
+          isPreviousYear: Boolean(q.isPreviousYear),
+          previousYearInfo: q.previousYearInfo ?? null,
+          isImportant: Boolean(q.isImportant),
+          isDailyChallenge: Boolean(q.isDailyChallenge),
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null);
+
+    if (questionRows.length > 0) {
+      const BATCH_SIZE = 15;
+      for (let i = 0; i < questionRows.length; i += BATCH_SIZE) {
+        const batch = questionRows.slice(i, i + BATCH_SIZE);
+        await db.insert(questions).values(batch);
+      }
+    }
+  }
+
   const allQuestions = await db.select().from(questions);
 
   const firstQuestionByTopicId = new Map<number, number>();
@@ -105,30 +133,45 @@ async function runSeed(): Promise<void> {
     }
   }
 
-  // 4. Insert Current Affairs
-  const caRows = CURRENT_AFFAIRS_SEEDS.map((ca) => {
-    const topic = topicBySlug.get(ca.linkedTopicSlug);
-    const linkedQId = topic
-      ? firstQuestionByTopicId.get(topic.id) ?? null
-      : null;
-    return {
-      titleEn: ca.titleEn,
-      titleNe: ca.titleNe,
-      summaryEn: ca.summaryEn,
-      summaryNe: ca.summaryNe,
-      keyPointsEn: JSON.stringify(ca.keyPointsEn),
-      keyPointsNe: JSON.stringify(ca.keyPointsNe),
-      category: ca.category,
-      publishedDateBs: ca.publishedDateBs,
-      publishedDateAd: ca.publishedDateAd,
-      linkedQuestionId: linkedQId,
-      isImportant: ca.isImportant,
-    };
-  });
+  // 4. Insert Current Affairs if empty
+  const [existingCA] = await db
+    .select({ id: currentAffairs.id })
+    .from(currentAffairs)
+    .limit(1);
 
-  await db.insert(currentAffairs).values(caRows);
+  if (!existingCA) {
+    const caRows = CURRENT_AFFAIRS_SEEDS.map((ca) => {
+      const topic = topicBySlug.get(ca.linkedTopicSlug);
+      const linkedQId = topic
+        ? firstQuestionByTopicId.get(topic.id) ?? null
+        : null;
+      return {
+        titleEn: ca.titleEn,
+        titleNe: ca.titleNe,
+        summaryEn: ca.summaryEn,
+        summaryNe: ca.summaryNe,
+        keyPointsEn: JSON.stringify(ca.keyPointsEn),
+        keyPointsNe: JSON.stringify(ca.keyPointsNe),
+        category: ca.category,
+        publishedDateBs: ca.publishedDateBs,
+        publishedDateAd: ca.publishedDateAd,
+        linkedQuestionId: linkedQId,
+        isImportant: ca.isImportant,
+      };
+    });
 
-  // 5. Insert Demo Users
+    await db.insert(currentAffairs).values(caRows);
+  }
+
+  // 5. Insert Demo Users if not present
+  const [existingUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .limit(1);
+
+  if (existingUser) {
+    return;
+  }
   const demoPasswordHash = hashPassword("Loksewa@2082");
   await db
     .insert(users)
@@ -420,11 +463,12 @@ async function runSeed(): Promise<void> {
 }
 
 export async function ensureDatabaseSeeded(): Promise<void> {
-  if (!globalForSeed.__loksewaSeedPromise) {
-    globalForSeed.__loksewaSeedPromise = runSeed().catch((err) => {
-      globalForSeed.__loksewaSeedPromise = null;
-      throw err;
-    });
+  if (globalForSeed.__loksewaSeedPromise) {
+    return globalForSeed.__loksewaSeedPromise;
   }
+  globalForSeed.__loksewaSeedPromise = runSeed().catch((err) => {
+    globalForSeed.__loksewaSeedPromise = null;
+    throw err;
+  });
   await globalForSeed.__loksewaSeedPromise;
 }

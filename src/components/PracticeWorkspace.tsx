@@ -83,13 +83,23 @@ export function PracticeWorkspace({
       if (selectedTopicId !== "all" && q.topicId !== selectedTopicId) {
         return false;
       }
-      if (
-        selectedCommission !== "all" &&
-        !q.commission
-          .toLowerCase()
-          .includes(selectedCommission.replace(" PPSC", "").toLowerCase())
-      ) {
-        return false;
+      if (selectedCommission !== "all") {
+        const commLower = q.commission.toLowerCase();
+        const selLower = selectedCommission.toLowerCase();
+        const matches =
+          commLower.includes(selLower) ||
+          (selLower.includes("police") &&
+            (commLower.includes("apf") ||
+              commLower.includes("police") ||
+              commLower.includes("प्रहरी"))) ||
+          (selLower.includes("tsc") &&
+            (commLower.includes("tsc") || commLower.includes("शिक्षक"))) ||
+          commLower.includes(
+            selectedCommission.replace(" PPSC", "").toLowerCase()
+          );
+        if (!matches) {
+          return false;
+        }
       }
       if (
         selectedDifficulty !== "all" &&
